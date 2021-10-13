@@ -10,9 +10,10 @@ CONTRACTS = {
 }
 
 # В сторадже токена подготовлен один NFT объект:
+# Владельцем токена должен быть установлен адрес кошелька, который используется для деплоя
 TOKEN_STORAGE = {
     "ledger": {
-        5: "tz1S6V1YfUqt7facXpdk68JQ11mD8qUh5Yex"
+        5: None
     },
     "metadata": {
         "": "68747470733a2f2f676973742e67697468756275736572636f6e74656e742e636f6d2f7a7465706c65722f37356566643933323436363964336536663836343636363537353537336666322f7261772f336332643363386634656364336432613265343064623364373863393131393066366139346433662f636f6e74726163745f6d6574612e6a736f6e"
@@ -51,7 +52,10 @@ def activate_and_reveal(client):
 def deploy_token(client):
     print(f'deploying token...')
     contract = CONTRACTS['token'].using(key=KEY_FILENAME, shell=SHELL)
-    opg = contract.originate(initial_storage=TOKEN_STORAGE).send()
+    storage = TOKEN_STORAGE.copy()
+    storage.update({'ledger': {5: client.key.public_key_hash()}})
+
+    opg = contract.originate(initial_storage=storage).send()
     print(f'success: {opg.hash()}')
     client.wait(opg)
 
