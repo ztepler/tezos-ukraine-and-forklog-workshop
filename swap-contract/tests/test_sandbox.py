@@ -90,16 +90,18 @@ class ContractInteractionsTestCase(SandboxedNodeTestCase):
         self.bake_block()
 
         # Проверка что токен теперь на своп контракте:
-        self.assertTrue(
+        self.assertEqual(
             self.token.storage['ledger'][5](),
             self.swap.address
         )
 
-        self.swap.accept(5)
+        # Покупка токена за 10 тезосов:
+        self.manager.contract(
+            self.swap.address).accept(5).with_amount(10_000_000).send()
         self.bake_block()
 
         # Проверка что токен вернулся обратно на аккаунт менеджера:
-        self.assertTrue(
+        self.assertEqual(
             self.token.storage['ledger'][5](),
             self.manager.key.public_key_hash()
         )
